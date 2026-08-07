@@ -1,0 +1,29 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# --- Environment / secrets ---
+.env
+backend/.env
+
+# --- Data / generated artifacts ---
+backend/data/app.db
+backend/data/chroma/
+# Knowledge-base source documents (large PDFs) are not committed; keep folder READMEs.
+backend/data/knowledge_base/**/*.pdf
+backend/data/knowledge_base/**/*.txt
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
