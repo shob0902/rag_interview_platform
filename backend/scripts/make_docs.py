@@ -131,9 +131,6 @@ story += [Spacer(1, 26)]
 story += [P("Technical Documentation", S("td", parent=subtitle, textColor=ACCENT,
             fontName="Helvetica-Bold", fontSize=12))]
 story += [Spacer(1, 40)]
-story += [P("PG-AGI &mdash; AI/ML &amp; Backend Intern Assignment", cover_meta)]
-story += [P("Author: Shourya Shobhit", cover_meta)]
-story += [PageBreak()]
 
 # ---- 1. Overview ----
 story += section("SECTION 1", "Executive Overview")
