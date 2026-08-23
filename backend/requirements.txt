@@ -1,3 +1,10 @@
+# chromadb's native chroma-hnswlib wheel is prebuilt assuming AVX-family CPU
+# instructions. Render's host CPU doesn't reliably support them, so the
+# prebuilt wheel crashes the whole process with "Illegal instruction" (SIGILL,
+# exit 132) the first time chromadb opens its index (e.g. GET /api/roles).
+# Forcing a source build compiles it for the actual host instead.
+--no-binary chroma-hnswlib
+
 # Web framework
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
