@@ -1,6 +1,8 @@
-// Thin API client. All calls go through the Vite proxy to the FastAPI backend.
-
-const BASE = "/api";
+// Thin API client. Locally this goes through the Vite proxy to the FastAPI
+// backend (see vite.config.js). In deployed builds (Netlify), set
+// VITE_API_BASE_URL to the backend's public URL, e.g.
+// https://ai-screening-backend-01tx.onrender.com/api
+const BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function handle(res) {
   if (!res.ok) {
