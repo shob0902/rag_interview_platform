@@ -253,3 +253,47 @@ pgagi_project/
 The frontend opens on a **landing page** explaining the product, then flows
 Setup → Interview → Summary. It ships a warm, minimal design system (Inter,
 soft neutral palette) with a light/dark theme toggle.
+
+---
+
+## 11. Deploying the backend (Koyeb, free)
+
+`backend/Dockerfile` builds the API as a container (multi-stage: compiles
+`chroma-hnswlib` from source in a build stage with a C toolchain, then ships a
+slim runtime image). Any Docker-based host works; these steps are for
+[Koyeb](https://www.koyeb.com), which has a free web-service tier with no
+credit card required.
+
+1. Push this repo to GitHub (already done).
+2. On Koyeb: **Create Service → GitHub → select this repo**. Set the
+   **Dockerfile path** to `backend/Dockerfile` and the **build context** to
+   `backend/`. Koyeb injects a `PORT` env var at runtime; the Dockerfile's
+   `CMD` already binds to it.
+3. Set environment variables on the service: `GOOGLE_API_KEY`, `GROQ_API_KEY`,
+   `LLM_PROVIDER=groq`, and `CORS_ORIGINS=https://<your-netlify-site>.netlify.app`
+   (comma-separate multiple origins, no spaces).
+4. Deploy. Koyeb gives you a public URL like `https://<name>-<org>.koyeb.app`.
+   Point the frontend's `VITE_API_BASE_URL` at `<that URL>/api` and redeploy
+   Netlify.
+
+**Storage caveat:** Koyeb's free instance can't attach a volume (that's a
+paid-instance feature), so `backend/data/` — the SQLite session DB and the
+Chroma vector store — is **ephemeral**: it resets on every redeploy or
+instance restart. This matches Render's free tier, which has the same
+limitation. For a demo/portfolio deployment that's usually acceptable
+(interview history resetting is harmless); the app still runs fine with an
+empty vector store, it just won't have retrieved context until re-ingested.
+To re-ingest after a restart, get a shell on the running instance with the
+[Koyeb CLI](https://www.koyeb.com/docs/build-and-deploy/cli/reference) and run
+the same ingestion step as local dev:
+
+```bash
+koyeb instances exec <instance-id> -- python -m scripts.ingest --role ai_ml_engineer
+```
+
+(The source PDF still needs to reach the container somehow — e.g. `curl` it
+from a URL you control inside that shell — since the copyrighted textbook
+PDFs are intentionally not committed to the repo.) If persistent storage
+matters more than staying on a free tier, the cleanest fix is a paid instance
++ volume, or pointing `DATABASE_URL` at a managed Postgres and swapping Chroma
+for a small hosted vector DB — both are drop-in via env vars, no code changes.
