@@ -19,8 +19,26 @@ clause. This keeps each role's knowledge base logically isolated.
 from __future__ import annotations
 
 import logging
+import sys
+import types
 from dataclasses import dataclass
 from functools import lru_cache
+
+# chromadb's Client.get_or_create_collection() declares its embedding_function
+# parameter's *default value* as `ef.DefaultEmbeddingFunction()` — Python
+# evaluates that once, the moment chromadb.api.client is first imported, which
+# constructs an ONNX MiniLM embedding function and eagerly imports
+# `onnxruntime`. We never use Chroma's built-in embeddings (we always supply
+# our own Gemini embeddings to add_documents/query below), but on some hosts
+# (observed on Render's free tier) onnxruntime's prebuilt wheel crashes the
+# whole process with SIGILL/exit 132 on import, because it uses CPU
+# instructions the host doesn't support. Since that embedding function is
+# never actually called, stub the module out before chromadb can import the
+# real one — `ONNXMiniLM_L6_V2.__init__` only does
+# `importlib.import_module("onnxruntime")`, which returns this stub straight
+# from sys.modules without touching the real package.
+if "onnxruntime" not in sys.modules:
+    sys.modules["onnxruntime"] = types.ModuleType("onnxruntime")
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
