@@ -2,7 +2,9 @@
 # instructions. Render's host CPU doesn't reliably support them, so the
 # prebuilt wheel crashes the whole process with "Illegal instruction" (SIGILL,
 # exit 132) the first time chromadb opens its index (e.g. GET /api/roles).
-# Forcing a source build compiles it for the actual host instead.
+# Forcing a source build avoids that wheel; the Dockerfile also sets
+# HNSWLIB_NO_NATIVE=1 so the build isn't tuned to the build machine's CPU
+# (-march=native), which crashes the same way when runtime CPU differs.
 --no-binary chroma-hnswlib
 
 # Web framework
