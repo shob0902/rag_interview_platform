@@ -38,7 +38,7 @@ class Settings(BaseSettings):
 
     # --- Groq --------------------------------------------------------------
     groq_api_key: str = ""
-    groq_generation_model: str = "llama-3.3-70b-versatile"
+    groq_generation_model: str = "openai/gpt-oss-120b"
 
     # --- Storage paths -----------------------------------------------------
     # SQLite database file used for interview session persistence.
