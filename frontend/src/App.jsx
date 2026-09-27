@@ -51,19 +51,14 @@ export default function App() {
           onClick={() => setStage("landing")}
           aria-label="Back to home"
         >
-          <span className="app__logo" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 3l2.4 5.2L20 9.6l-4 4 1 5.6L12 16.9 7 19.2l1-5.6-4-4 5.6-1.4z" />
-            </svg>
-          </span>
-          <div className="app__brandtext">
-            <h1>Interview Screening</h1>
-            <p>RAG-powered, resume-tailored technical interviews</p>
-          </div>
+          <span className="app__logo" aria-hidden="true" />
+          <h1 className="app__brandname">Screening.</h1>
         </button>
         <div className="app__headerright">
           {!onLanding && <Stepper stages={STAGES} current={stage} />}
-          <ThemeToggle theme={theme} onToggle={toggle} />
+          <div className="app__togglecell">
+            <ThemeToggle theme={theme} onToggle={toggle} />
+          </div>
         </div>
       </header>
 

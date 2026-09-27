@@ -37,36 +37,55 @@ export default function InterviewScreen({ session, firstQuestion, onFinished }) 
     }
   }
 
+  const pad = (n) => String(n).padStart(2, "0");
+
   return (
     <div className="interview">
       <aside className="interview__side">
-        <ProfilePanel profile={session.profile} name={session.candidateName} />
+        <div className="counter">
+          <span className="counter__num" aria-hidden="true">
+            {pad(currentNumber)}
+          </span>
+          <span className="counter__of">
+            <span className="sr-only">Question {currentNumber} </span>
+            of {pad(total)} questions
+          </span>
+          <div className="progress">
+            <div
+              className="progress__bar"
+              role="progressbar"
+              aria-valuenow={progressPct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Interview progress"
+            >
+              <div
+                className="progress__fill"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+            <span className="progress__meta">{progressPct}% complete</span>
+          </div>
+        </div>
+        <ProfilePanel
+          profile={session.profile}
+          name={session.candidateName}
+          variant="compact"
+        />
+        <ContextTrace chunks={question.context_chunks} variant="compact" />
       </aside>
 
       <section className="interview__main">
-        <div className="progress">
-          <div className="progress__meta">
-            <span>
-              Question {currentNumber} of {total}
-            </span>
-            <span className="muted">{progressPct}% complete</span>
-          </div>
-          <div className="progress__bar">
-            <div
-              className="progress__fill"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="card question-card">
+        <div className="question-card">
           <div className="question-card__tags">
             <span className="tag tag--topic">{question.topic}</span>
             <span className={`tag tag--diff tag--${question.difficulty}`}>
               {question.difficulty}
             </span>
           </div>
-          <p className="question-card__text">{question.question}</p>
+          <p className={`question-card__text${questionSizeClass(question.question)}`}>
+            {question.question}
+          </p>
           {question.rationale && (
             <p className="question-card__why">
               <strong>Why this question:</strong> {question.rationale}
@@ -76,7 +95,7 @@ export default function InterviewScreen({ session, firstQuestion, onFinished }) 
           <ContextTrace chunks={question.context_chunks} />
         </div>
 
-        <form className="card answer-card" onSubmit={handleSubmit}>
+        <form className="answer-card" onSubmit={handleSubmit}>
           <label className="field">
             <span>Your answer</span>
             <textarea
@@ -88,25 +107,39 @@ export default function InterviewScreen({ session, firstQuestion, onFinished }) 
               autoFocus
             />
           </label>
-          {error && <div className="alert">{error}</div>}
+          {error && (
+            <div className="alert" role="alert">
+              {error}
+            </div>
+          )}
           <button
-            className="btn btn--primary"
+            className="btn btn--primary btn--bar btn--submit"
             type="submit"
             disabled={submitting}
           >
-            {submitting
-              ? "Evaluating & preparing next…"
-              : currentNumber === total
-              ? "Submit final answer"
-              : "Submit & continue"}
+            <span>
+              {submitting
+                ? "Evaluating…"
+                : currentNumber === total
+                ? "Submit final answer"
+                : "Submit & continue"}
+            </span>
+            {submitting && (
+              <span className="btn__note">
+                The next question adapts to what you just answered.
+              </span>
+            )}
           </button>
-          {submitting && (
-            <p className="muted small">
-              The next question adapts to what you just answered.
-            </p>
-          )}
         </form>
       </section>
     </div>
   );
+}
+
+// Generated questions vary a lot in length; step the display size down for
+// long ones so the answer box stays on screen.
+function questionSizeClass(text = "") {
+  if (text.length > 320) return " question-card__text--xlong";
+  if (text.length > 180) return " question-card__text--long";
+  return "";
 }

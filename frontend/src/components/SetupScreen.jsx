@@ -49,92 +49,112 @@ export default function SetupScreen({ onStarted }) {
   }
 
   return (
-    <form className="card setup" onSubmit={handleSubmit}>
-      <h2>Start a screening interview</h2>
-      <p className="muted">
-        Upload your resume and pick a role. The system parses your resume,
-        retrieves role-specific material from its knowledge base, and generates
-        questions tailored to you.
-      </p>
+    <form className="setup" onSubmit={handleSubmit}>
+      <header className="setup__head">
+        <h2>Start a screening interview</h2>
+        <p className="muted">
+          Upload your resume and pick a role. The system parses your resume,
+          retrieves role-specific material from its knowledge base, and
+          generates questions tailored to you.
+        </p>
+      </header>
 
-      <label className="field">
-        <span>Your name (optional)</span>
-        <input
-          type="text"
-          value={candidateName}
-          placeholder="e.g. Alex Doe"
-          onChange={(e) => setCandidateName(e.target.value)}
-        />
-      </label>
+      <div className="setup__grid">
+        <div className="setup__col">
+          <label className="field field--box">
+            <span>Your name (optional)</span>
+            <input
+              type="text"
+              value={candidateName}
+              placeholder="e.g. Alex Doe"
+              onChange={(e) => setCandidateName(e.target.value)}
+            />
+          </label>
 
-      <label className="field">
-        <span>Target role</span>
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          {roles.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          <label className="field field--box">
+            <span>Target role</span>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      {selectedRole && (
-        <div className="role-detail">
-          <p className="muted">{selectedRole.description}</p>
-          <span className={`badge ${kbReady ? "badge--ok" : "badge--warn"}`}>
-            {kbReady
-              ? `Knowledge base: ${selectedRole.document_count} chunks`
-              : "Knowledge base empty — run ingestion for grounded questions"}
-          </span>
-        </div>
-      )}
-
-      <div className="field">
-        <span>Resume</span>
-        <div className="toggle">
-          <button
-            type="button"
-            className={mode === "upload" ? "toggle__btn active" : "toggle__btn"}
-            onClick={() => setMode("upload")}
-          >
-            Upload file
-          </button>
-          <button
-            type="button"
-            className={mode === "paste" ? "toggle__btn active" : "toggle__btn"}
-            onClick={() => setMode("paste")}
-          >
-            Paste text
-          </button>
+          {selectedRole && (
+            <div className="role-detail">
+              <p className="muted">{selectedRole.description}</p>
+              <span className={`badge ${kbReady ? "badge--ok" : "badge--warn"}`}>
+                {kbReady
+                  ? `Knowledge base: ${selectedRole.document_count} chunks`
+                  : "Knowledge base empty — run ingestion for grounded questions"}
+              </span>
+            </div>
+          )}
         </div>
 
-        {mode === "upload" ? (
-          <input
-            type="file"
-            accept=".pdf,.txt,.md"
-            onChange={(e) => setFile(e.target.files[0] || null)}
-          />
-        ) : (
-          <textarea
-            rows={8}
-            value={resumeText}
-            placeholder="Paste your resume text here…"
-            onChange={(e) => setResumeText(e.target.value)}
-          />
-        )}
+        <div className="setup__col">
+          <div className="field field--resume">
+            <span>Resume</span>
+            <div className="toggle">
+              <button
+                type="button"
+                className={mode === "upload" ? "toggle__btn active" : "toggle__btn"}
+                onClick={() => setMode("upload")}
+                aria-pressed={mode === "upload"}
+              >
+                Upload file
+              </button>
+              <button
+                type="button"
+                className={mode === "paste" ? "toggle__btn active" : "toggle__btn"}
+                onClick={() => setMode("paste")}
+                aria-pressed={mode === "paste"}
+              >
+                Paste text
+              </button>
+            </div>
+
+            {mode === "upload" ? (
+              <input
+                type="file"
+                accept=".pdf,.txt,.md"
+                aria-label="Resume file"
+                onChange={(e) => setFile(e.target.files[0] || null)}
+              />
+            ) : (
+              <textarea
+                rows={8}
+                value={resumeText}
+                aria-label="Resume text"
+                placeholder="Paste your resume text here…"
+                onChange={(e) => setResumeText(e.target.value)}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
-      {error && <div className="alert">{error}</div>}
-
-      <button className="btn btn--primary" type="submit" disabled={loading}>
-        {loading ? "Preparing your interview…" : "Begin interview"}
-      </button>
-      {loading && (
-        <p className="muted small">
-          Parsing resume, retrieving context, and generating the first
-          question — this can take a few seconds.
-        </p>
+      {error && (
+        <div className="alert" role="alert">
+          {error}
+        </div>
       )}
+
+      <button
+        className="btn btn--primary btn--bar"
+        type="submit"
+        disabled={loading}
+      >
+        <span>{loading ? "Preparing your interview…" : "Begin interview"}</span>
+        {loading && (
+          <span className="btn__note">
+            Parsing resume, retrieving context, and generating the first
+            question — this can take a few seconds.
+          </span>
+        )}
+      </button>
     </form>
   );
 }

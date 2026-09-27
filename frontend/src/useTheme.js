@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 
-// Light/dark theme with localStorage persistence and system-preference default.
+// Light/dark theme with localStorage persistence. Dark is the default; light
+// only applies when the user has explicitly chosen it.
 // The chosen theme is stamped on <html data-theme="…"> and CSS keys off it.
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "light" || saved === "dark") return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
+    try {
+      return localStorage.getItem("theme") === "light" ? "light" : "dark";
+    } catch {
+      return "dark";
+    }
   });
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("theme", theme);
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Storage unavailable (private mode etc.) — theme still applies.
+    }
   }, [theme]);
 
   const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
