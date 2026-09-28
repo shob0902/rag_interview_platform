@@ -10,7 +10,6 @@ __pycache__/
 !.env.example
 
 data/app.db
-data/chroma/
 data/knowledge_base/**/*.pdf
 data/knowledge_base/**/*.txt
 

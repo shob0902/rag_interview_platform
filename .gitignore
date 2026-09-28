@@ -12,7 +12,6 @@ backend/.env
 
 # --- Data / generated artifacts ---
 backend/data/app.db
-backend/data/chroma/
 # Knowledge-base source documents (large PDFs) are not committed; keep folder READMEs.
 backend/data/knowledge_base/**/*.pdf
 backend/data/knowledge_base/**/*.txt
