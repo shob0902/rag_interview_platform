@@ -8,8 +8,6 @@ retrieved context and tailored to the candidate**. The interview is interactive
 and adaptive, every question is fully traceable to its source, and the session
 ends with a structured evaluation.
 
-> Built for the PG-AGI AI/ML & Backend Intern assignment.
-
 ---
 
 ## 1. What it does (the flow)
@@ -168,7 +166,7 @@ npm install
 npm run dev      # http://localhost:5173  (proxies /api to :8000)
 ```
 
-Open http://localhost:5173, upload a resume, choose a role, and start.
+Open http://localhost:5173, upload a resume, type a role (or pick a preset), and start.
 
 ---
 
@@ -204,8 +202,15 @@ All via environment (`backend/.env`; see `.env.example`). Key knobs:
 - **Traceability as a first-class feature**: the grounding chunks are stored and
   surfaced in the UI, not just used and discarded — reviewers can see exactly
   why each question was asked.
-- **Roles are data, not code**: adding a role = one entry in `roles.py` + a
-  folder of documents to ingest.
+- **Roles are data, not code**: adding a preset role = one entry in `roles.py`
+  + a folder of documents to ingest.
+- **Any role can be typed in**: presets are shortcuts. For a custom role, one
+  LLM call decides whether an existing knowledge base is core to it (e.g. "NLP
+  Engineer" uses the ML textbook, "Frontend Developer" doesn't); the result is
+  cached per role name. Similarity scores alone couldn't make this call, since
+  unrelated roles score nearly as high as related ones. With no applicable
+  knowledge base, questions are generated from the role's core concepts and
+  carry no sources.
 - **Ingestion under a free-tier constraint**: Gemini's embedding free tier counts
   one request per document and caps at 100/min. Ingestion is throttled with a
   sliding-window rate limiter (`EMBEDDING_REQUESTS_PER_MINUTE`) and uses larger

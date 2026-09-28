@@ -32,14 +32,24 @@ class GeneratedQuestion:
     context_indices: list[int]
 
 
+_GROUNDED_RULES = """You MUST ground every question in the provided KNOWLEDGE BASE \
+CONTEXT (extracted from the role's authoritative textbook). Do not ask generic or \
+template questions; the question must test understanding of a concept present in \
+the context, connected to the candidate's background."""
+
+# Used when retrieval returned nothing: a custom role with no applicable
+# knowledge base, or a preset role whose knowledge base hasn't been ingested.
+_UNGROUNDED_RULES = """No knowledge base passages are available for this role. \
+Base every question on well-established, widely taught concepts and practices that \
+are core to the "{role_label}" role. Do not ask trivia, generic or template \
+questions; the question must test real understanding, connected to the candidate's \
+background. Return an empty "context_indices" array."""
+
 _SYSTEM_PROMPT = """You are a senior technical interviewer conducting a live, \
 role-specific screening interview for the role of "{role_label}".
 Role focus: {role_description}
 
-You MUST ground every question in the provided KNOWLEDGE BASE CONTEXT (extracted \
-from the role's authoritative textbook). Do not ask generic or template questions; \
-the question must test understanding of a concept present in the context, connected \
-to the candidate's background.
+{grounding_rules}
 
 CANDIDATE PROFILE
 - Seniority: {seniority}
@@ -89,7 +99,14 @@ def generate_question(
     )
     followup_block = _format_followup(last_question, last_answer)
 
+    grounding_rules = (
+        _GROUNDED_RULES
+        if context
+        else _UNGROUNDED_RULES.format(role_label=role.label)
+    )
+
     prompt = _SYSTEM_PROMPT.format(
+        grounding_rules=grounding_rules,
         role_label=role.label,
         role_description=role.description,
         seniority=profile.seniority,

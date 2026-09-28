@@ -14,7 +14,7 @@ from sqlmodel import Session
 
 from ..config import get_settings
 from ..database import get_session
-from ..roles import list_roles
+from ..roles import InvalidRoleError, get_role, list_roles
 from ..schemas import (
     RoleInfo,
     StartInterviewResponse,
@@ -83,7 +83,7 @@ async def start_interview(
         session = interview_service.start_interview(
             db, role_id=role, candidate_name=candidate_name, resume_text=text
         )
-    except KeyError as exc:
+    except InvalidRoleError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         logger.exception("Failed to start interview")
@@ -96,6 +96,7 @@ async def start_interview(
     return StartInterviewResponse(
         session_id=session.id,
         role=session.role,
+        role_label=get_role(session.role).label,
         candidate_name=session.candidate_name,
         resume_profile=profile_to_schema(session),
         total_questions=settings.questions_per_interview,

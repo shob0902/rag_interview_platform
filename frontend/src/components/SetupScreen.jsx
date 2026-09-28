@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { getRoles, startInterview } from "../api.js";
 
-// Candidate entry: choose a role, provide a resume (upload or paste), start.
+// Candidate entry: type (or pick) a role, provide a resume (upload or paste),
+// start. Any role is accepted; the presets are shortcuts that come with their
+// own knowledge base.
+const MAX_ROLE_CHARS = 60;
 export default function SetupScreen({ onStarted }) {
   const [roles, setRoles] = useState([]);
   const [role, setRole] = useState("");
@@ -16,18 +19,20 @@ export default function SetupScreen({ onStarted }) {
     getRoles()
       .then((data) => {
         setRoles(data);
-        if (data.length) setRole(data[0].id);
       })
-      .catch((e) => setError(`Could not load roles: ${e.message}`));
+      .catch((e) => setError(`Could not load suggested roles: ${e.message}`));
   }, []);
 
-  const selectedRole = roles.find((r) => r.id === role);
+  const roleKey = role.trim().toLowerCase();
+  const selectedRole = roles.find(
+    (r) => r.label.toLowerCase() === roleKey || r.id === roleKey
+  );
   const kbReady = selectedRole && selectedRole.document_count > 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (!role) return setError("Please select a role.");
+    if (!role.trim()) return setError("Please enter a target role.");
     if (mode === "upload" && !file) return setError("Please upload a resume file.");
     if (mode === "paste" && !resumeText.trim())
       return setError("Please paste your resume text.");
@@ -35,7 +40,7 @@ export default function SetupScreen({ onStarted }) {
     setLoading(true);
     try {
       const res = await startInterview({
-        role,
+        role: role.trim(),
         candidateName,
         file: mode === "upload" ? file : null,
         resumeText: mode === "paste" ? resumeText : null,
@@ -53,9 +58,9 @@ export default function SetupScreen({ onStarted }) {
       <header className="setup__head">
         <h2>Start a screening interview</h2>
         <p className="muted">
-          Upload your resume and pick a role. The system parses your resume,
-          retrieves role-specific material from its knowledge base, and
-          generates questions tailored to you.
+          Upload your resume and enter the role you're applying for. The
+          system parses your resume, retrieves relevant material from its
+          knowledge base, and generates questions tailored to you.
         </p>
       </header>
 
@@ -73,16 +78,45 @@ export default function SetupScreen({ onStarted }) {
 
           <label className="field field--box">
             <span>Target role</span>
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-              {roles.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              value={role}
+              maxLength={MAX_ROLE_CHARS}
+              placeholder="e.g. Frontend Developer"
+              onChange={(e) => setRole(e.target.value)}
+            />
           </label>
 
-          {selectedRole && (
+          {roles.length > 0 && (
+            <div className="role-presets">
+              <span className="role-presets__label" id="role-presets-label">
+                Or pick one
+              </span>
+              <div
+                className="role-presets__list"
+                role="group"
+                aria-labelledby="role-presets-label"
+              >
+                {roles.map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    className={
+                      selectedRole?.id === r.id
+                        ? "role-preset active"
+                        : "role-preset"
+                    }
+                    aria-pressed={selectedRole?.id === r.id}
+                    onClick={() => setRole(r.label)}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedRole ? (
             <div className="role-detail">
               <p className="muted">{selectedRole.description}</p>
               <span className={`badge ${kbReady ? "badge--ok" : "badge--warn"}`}>
@@ -91,6 +125,17 @@ export default function SetupScreen({ onStarted }) {
                   : "Knowledge base empty — run ingestion for grounded questions"}
               </span>
             </div>
+          ) : (
+            role.trim() && (
+              <div className="role-detail">
+                <p className="muted">
+                  Custom role. Questions are grounded in the knowledge base
+                  where it's relevant to this role; otherwise they're generated
+                  from the role's core concepts.
+                </p>
+                <span className="badge">Custom role</span>
+              </div>
+            )
           )}
         </div>
 

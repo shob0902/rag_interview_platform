@@ -35,7 +35,7 @@ export default function SummaryScreen({ session, onRestart }) {
           <div className="summary__head">
             <h2>Interview summary</h2>
             <p className="muted">
-              {data.candidate_name} · {roleLabel(data.role)} ·{" "}
+              {data.candidate_name} · {data.role_label || roleLabel(data.role)} ·{" "}
               {data.questions.length} questions
             </p>
           </div>

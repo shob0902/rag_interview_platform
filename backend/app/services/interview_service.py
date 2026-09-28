@@ -42,7 +42,9 @@ def start_interview(
 ) -> InterviewSession:
     """Create a session, profile the resume, and generate the first question."""
 
-    get_role(role_id)  # validates the role, raises KeyError if unknown
+    # Validates the text (raises InvalidRoleError) and canonicalises it: a
+    # preset's id, or the cleaned-up text for a custom role.
+    role_id = get_role(role_id).id
 
     profile = resume_parser.build_profile(resume_text=resume_text, role_id=role_id)
 

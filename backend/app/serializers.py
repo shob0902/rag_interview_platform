@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from .models import InterviewSession, QAPair
+from .roles import get_role
 from .schemas import (
     ContextChunk,
     QuestionOut,
@@ -37,6 +38,7 @@ def session_to_summary(session: InterviewSession) -> SessionSummary:
         session_id=session.id,
         candidate_name=session.candidate_name,
         role=session.role,
+        role_label=get_role(session.role).label,
         status=session.status,
         resume_profile=profile_to_schema(session),
         created_at=session.created_at,

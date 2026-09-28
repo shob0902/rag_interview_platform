@@ -63,6 +63,7 @@ class QuestionOut(BaseModel):
 class StartInterviewResponse(BaseModel):
     session_id: str
     role: str
+    role_label: str
     candidate_name: str
     resume_profile: ResumeProfile
     total_questions: int
@@ -93,6 +94,7 @@ class SessionSummary(BaseModel):
     session_id: str
     candidate_name: str
     role: str
+    role_label: str
     status: str
     resume_profile: ResumeProfile
     created_at: datetime

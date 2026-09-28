@@ -792,6 +792,48 @@ input[type="file"]::file-selector-button:hover {
   font-size: 15px;
 }
 
+/* Preset role shortcuts under the free-text role field. */
+.role-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px var(--pad);
+  border-bottom: var(--line) solid var(--border);
+}
+.role-presets__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+.role-presets__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.role-preset {
+  padding: 8px 12px;
+  border: 2px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.role-preset:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+.role-preset.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
 .field--resume {
   flex: 1;
   gap: 0;
